@@ -1,0 +1,15 @@
+digraph G {
+    
+    node [shape=box, style="filled", fillcolor="#1661AB", fontcolor="white"];
+    Adapter [fillcolor="maroon", width=2];
+    Application[width=2];
+    Domain[width=1.1];
+    Infrastructure [fillcolor="maroon", width=2];
+
+
+    Adapter -> Application;
+    Application -> Domain;
+    Application -> Infrastructure;
+    Domain -> Infrastructure;
+
+}
