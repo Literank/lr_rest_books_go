@@ -8,16 +8,15 @@ import (
 	"literank.com/rest-books/infrastructure/config"
 )
 
+const configFileName = "config.yml"
+
 func main() {
-	c := &config.Config{
-		App: config.ApplicationConfig{
-			Port: 8080,
-		},
-		DB: config.DBConfig{
-			FileName: "test.db",
-			DSN:      "test_user:test_pass@tcp(127.0.0.1:3306)/lr_book?charset=utf8mb4&parseTime=True&loc=Local",
-		},
+	// Read the config
+	c, err := config.Parse(configFileName)
+	if err != nil {
+		panic(err)
 	}
+
 	// Prepare dependencies
 	wireHelper, err := application.NewWireHelper(c)
 	if err != nil {
