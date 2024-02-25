@@ -13,8 +13,10 @@ type Config struct {
 }
 
 type DBConfig struct {
-	FileName string `json:"file_name" yaml:"file_name"`
-	DSN      string `json:"dsn" yaml:"dsn"`
+	FileName    string `json:"file_name" yaml:"file_name"`
+	DSN         string `json:"dsn" yaml:"dsn"`
+	MongoURI    string `json:"mongo_uri" yaml:"mongo_uri"`
+	MongoDBName string `json:"mongo_db_name" yaml:"mongo_db_name"`
 }
 
 type ApplicationConfig struct {

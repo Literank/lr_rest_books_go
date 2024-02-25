@@ -3,3 +3,5 @@ app:
 db:
   file_name: "test.db"
   dsn: "test_user:test_pass@tcp(127.0.0.1:3306)/lr_book?charset=utf8mb4&parseTime=True&loc=Local"
+  mongo_uri: "mongodb://localhost:27017"
+  mongo_db_name: "lr_book"

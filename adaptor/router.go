@@ -7,18 +7,23 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"literank.com/rest-books/application"
+	"literank.com/rest-books/application/dto"
 	"literank.com/rest-books/application/executor"
 	"literank.com/rest-books/domain/model"
 )
 
+const fieldID = "id"
+
 // RestHandler handles all restful requests
 type RestHandler struct {
-	bookOperator *executor.BookOperator
+	bookOperator   *executor.BookOperator
+	reviewOperator *executor.ReviewOperator
 }
 
 func MakeRouter(wireHelper *application.WireHelper) (*gin.Engine, error) {
 	rest := &RestHandler{
-		bookOperator: executor.NewBookOperator(wireHelper.BookManager()),
+		bookOperator:   executor.NewBookOperator(wireHelper.BookManager()),
+		reviewOperator: executor.NewReviewOperator(wireHelper.ReviewManager()),
 	}
 	// Create a new Gin router
 	r := gin.Default()
@@ -35,6 +40,11 @@ func MakeRouter(wireHelper *application.WireHelper) (*gin.Engine, error) {
 	r.POST("/books", rest.createBook)
 	r.PUT("/books/:id", rest.updateBook)
 	r.DELETE("/books/:id", rest.deleteBook)
+	r.GET("/books/:id/reviews", rest.getReviewsOfBook)
+	r.GET("/reviews/:id", rest.getReview)
+	r.POST("/reviews", rest.createReview)
+	r.PUT("/reviews/:id", rest.updateReview)
+	r.DELETE("/reviews/:id", rest.deleteReview)
 	return r, nil
 }
 
@@ -42,8 +52,8 @@ func MakeRouter(wireHelper *application.WireHelper) (*gin.Engine, error) {
 func (r *RestHandler) getBooks(c *gin.Context) {
 	books, err := r.bookOperator.GetBooks(c)
 	if err != nil {
-		fmt.Printf("Failed to get books: %v", err)
-		c.JSON(http.StatusNotFound, gin.H{"error": "Failed to get books"})
+		fmt.Printf("Failed to get books: %v\n", err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "failed to get books"})
 		return
 	}
 	c.JSON(http.StatusOK, books)
@@ -51,15 +61,15 @@ func (r *RestHandler) getBooks(c *gin.Context) {
 
 // Get single book
 func (r *RestHandler) getBook(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param(fieldID))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Invalid id"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id"})
 		return
 	}
 	book, err := r.bookOperator.GetBook(c, uint(id))
 	if err != nil {
-		fmt.Printf("Failed to get the book with %d: %v", id, err)
-		c.JSON(http.StatusNotFound, gin.H{"error": "Failed to get the book"})
+		fmt.Printf("Failed to get the book with %d: %v\n", id, err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "failed to get the book"})
 		return
 	}
 	c.JSON(http.StatusOK, book)
@@ -75,8 +85,8 @@ func (r *RestHandler) createBook(c *gin.Context) {
 
 	book, err := r.bookOperator.CreateBook(c, &reqBody)
 	if err != nil {
-		fmt.Printf("Failed to create: %v", err)
-		c.JSON(http.StatusNotFound, gin.H{"error": "Failed to create"})
+		fmt.Printf("Failed to create: %v\n", err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "failed to create"})
 		return
 	}
 	c.JSON(http.StatusCreated, book)
@@ -84,9 +94,9 @@ func (r *RestHandler) createBook(c *gin.Context) {
 
 // Update an existing book
 func (r *RestHandler) updateBook(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param(fieldID))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Invalid id"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
 	}
 
@@ -98,8 +108,8 @@ func (r *RestHandler) updateBook(c *gin.Context) {
 
 	book, err := r.bookOperator.UpdateBook(c, uint(id), &reqBody)
 	if err != nil {
-		fmt.Printf("Failed to update: %v", err)
-		c.JSON(http.StatusNotFound, gin.H{"error": "Failed to update"})
+		fmt.Printf("Failed to update: %v\n", err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "failed to update"})
 		return
 	}
 	c.JSON(http.StatusOK, book)
@@ -107,15 +117,91 @@ func (r *RestHandler) updateBook(c *gin.Context) {
 
 // Delete an existing book
 func (r *RestHandler) deleteBook(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param(fieldID))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Invalid id"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
 	}
 
 	if err := r.bookOperator.DeleteBook(c, uint(id)); err != nil {
-		fmt.Printf("Failed to delete: %v", err)
-		c.JSON(http.StatusNotFound, gin.H{"error": "Failed to delete"})
+		fmt.Printf("Failed to delete: %v\n", err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "failed to delete"})
+		return
+	}
+	c.JSON(http.StatusNoContent, nil)
+}
+
+// Get all book reviews
+func (r *RestHandler) getReviewsOfBook(c *gin.Context) {
+	bookID, err := strconv.Atoi(c.Param(fieldID))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid book id"})
+		return
+	}
+	books, err := r.reviewOperator.GetReviewsOfBook(c, uint(bookID))
+	if err != nil {
+		fmt.Printf("Failed to get reviews of book %d: %v\n", bookID, err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "failed to get books"})
+		return
+	}
+	c.JSON(http.StatusOK, books)
+}
+
+// Get single review
+func (r *RestHandler) getReview(c *gin.Context) {
+	id := c.Param(fieldID)
+	review, err := r.reviewOperator.GetReview(c, id)
+	if err != nil {
+		fmt.Printf("Failed to get the review %s: %v\n", id, err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "failed to get the review"})
+		return
+	}
+	c.JSON(http.StatusOK, review)
+}
+
+// Create a new review
+func (r *RestHandler) createReview(c *gin.Context) {
+	var reviewBody dto.ReviewBody
+	if err := c.ShouldBindJSON(&reviewBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	book, err := r.reviewOperator.CreateReview(c, &reviewBody)
+	if err != nil {
+		fmt.Printf("Failed to create: %v\n", err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "failed to create the review"})
+		return
+	}
+	c.JSON(http.StatusCreated, book)
+}
+
+// Update an existing review
+func (r *RestHandler) updateReview(c *gin.Context) {
+	id := c.Param(fieldID)
+
+	var reqBody model.Review
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	book, err := r.reviewOperator.UpdateReview(c, id, &reqBody)
+	if err != nil {
+		fmt.Printf("Failed to update: %v\n", err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "failed to update the review"})
+		return
+	}
+	c.JSON(http.StatusOK, book)
+}
+
+// Delete an existing review
+func (r *RestHandler) deleteReview(c *gin.Context) {
+	id := c.Param(fieldID)
+
+	if err := r.reviewOperator.DeleteReview(c, id); err != nil {
+		fmt.Printf("Failed to delete: %v\n", err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "failed to delete the review"})
 		return
 	}
 	c.JSON(http.StatusNoContent, nil)
