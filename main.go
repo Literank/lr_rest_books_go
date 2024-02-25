@@ -15,6 +15,7 @@ func main() {
 		},
 		DB: config.DBConfig{
 			FileName: "test.db",
+			DSN:      "test_user:test_pass@tcp(127.0.0.1:3306)/lr_book?charset=utf8mb4&parseTime=True&loc=Local",
 		},
 	}
 	// Prepare dependencies

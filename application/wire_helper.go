@@ -8,11 +8,11 @@ import (
 
 // WireHelper is the helper for dependency injection
 type WireHelper struct {
-	persistence *database.SQLitePersistence
+	persistence *database.MySQLPersistence
 }
 
 func NewWireHelper(c *config.Config) (*WireHelper, error) {
-	db, err := database.NewSQLitePersistence(c.DB.FileName)
+	db, err := database.NewMySQLPersistence(c.DB.DSN)
 	if err != nil {
 		return nil, err
 	}
