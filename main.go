@@ -17,7 +17,7 @@ func main() {
 			FileName: "test.db",
 		},
 	}
-	// Prepare dependancies
+	// Prepare dependencies
 	wireHelper, err := application.NewWireHelper(c)
 	if err != nil {
 		panic(err)
