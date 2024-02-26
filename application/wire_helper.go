@@ -15,7 +15,7 @@ type WireHelper struct {
 }
 
 func NewWireHelper(c *config.Config) (*WireHelper, error) {
-	db, err := database.NewMySQLPersistence(c.DB.DSN)
+	db, err := database.NewMySQLPersistence(c.DB.DSN, c.App.PageSize)
 	if err != nil {
 		return nil, err
 	}

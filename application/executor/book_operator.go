@@ -3,6 +3,7 @@ package executor
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"literank.com/rest-books/domain/gateway"
 	"literank.com/rest-books/domain/model"
@@ -33,8 +34,9 @@ func (o *BookOperator) GetBook(ctx context.Context, id uint) (*model.Book, error
 	return o.bookManager.GetBook(ctx, id)
 }
 
-func (o *BookOperator) GetBooks(ctx context.Context) ([]*model.Book, error) {
-	rawValue, err := o.cacheHelper.Load(ctx, booksKey)
+func (o *BookOperator) GetBooks(ctx context.Context, offset int) ([]*model.Book, error) {
+	k := fmt.Sprintf("%s-%d", booksKey, offset)
+	rawValue, err := o.cacheHelper.Load(ctx, k)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +49,7 @@ func (o *BookOperator) GetBooks(ctx context.Context) ([]*model.Book, error) {
 		}
 	} else {
 		// Cache key does not exist
-		books, err = o.bookManager.GetBooks(ctx)
+		books, err = o.bookManager.GetBooks(ctx, offset)
 		if err != nil {
 			return nil, err
 		}
@@ -55,7 +57,7 @@ func (o *BookOperator) GetBooks(ctx context.Context) ([]*model.Book, error) {
 		if err != nil {
 			return nil, err
 		}
-		if err := o.cacheHelper.Save(ctx, booksKey, string(value)); err != nil {
+		if err := o.cacheHelper.Save(ctx, k, string(value)); err != nil {
 			return nil, err
 		}
 	}

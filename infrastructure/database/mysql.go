@@ -13,10 +13,11 @@ import (
 )
 
 type MySQLPersistence struct {
-	db *gorm.DB
+	db       *gorm.DB
+	pageSize int
 }
 
-func NewMySQLPersistence(dsn string) (*MySQLPersistence, error) {
+func NewMySQLPersistence(dsn string, pageSize int) (*MySQLPersistence, error) {
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
@@ -24,7 +25,7 @@ func NewMySQLPersistence(dsn string) (*MySQLPersistence, error) {
 	// Auto Migrate the data structs
 	db.AutoMigrate(&model.Book{})
 
-	return &MySQLPersistence{db}, nil
+	return &MySQLPersistence{db, pageSize}, nil
 }
 
 func (s *MySQLPersistence) CreateBook(ctx context.Context, b *model.Book) (uint, error) {
@@ -54,9 +55,9 @@ func (s *MySQLPersistence) GetBook(ctx context.Context, id uint) (*model.Book, e
 	return &book, nil
 }
 
-func (s *MySQLPersistence) GetBooks(ctx context.Context) ([]*model.Book, error) {
+func (s *MySQLPersistence) GetBooks(ctx context.Context, offset int) ([]*model.Book, error) {
 	books := make([]*model.Book, 0)
-	if err := s.db.WithContext(ctx).Find(&books).Error; err != nil {
+	if err := s.db.WithContext(ctx).Offset(offset).Limit(s.pageSize).Find(&books).Error; err != nil {
 		return nil, err
 	}
 	return books, nil

@@ -12,7 +12,10 @@ import (
 	"literank.com/rest-books/domain/model"
 )
 
-const fieldID = "id"
+const (
+	fieldID     = "id"
+	fieldOffset = "o"
+)
 
 // RestHandler handles all restful requests
 type RestHandler struct {
@@ -50,7 +53,17 @@ func MakeRouter(wireHelper *application.WireHelper) (*gin.Engine, error) {
 
 // Get all books
 func (r *RestHandler) getBooks(c *gin.Context) {
-	books, err := r.bookOperator.GetBooks(c)
+	offset := 0
+	offsetParam := c.Query(fieldOffset)
+	if offsetParam != "" {
+		value, err := strconv.Atoi(offsetParam)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid offset"})
+			return
+		}
+		offset = value
+	}
+	books, err := r.bookOperator.GetBooks(c, offset)
 	if err != nil {
 		fmt.Printf("Failed to get books: %v\n", err)
 		c.JSON(http.StatusNotFound, gin.H{"error": "failed to get books"})
