@@ -40,8 +40,8 @@ func (o *ReviewOperator) GetReview(ctx context.Context, id string) (*model.Revie
 	return o.reviewManager.GetReview(ctx, id)
 }
 
-func (o *ReviewOperator) GetReviewsOfBook(ctx context.Context, bookID uint) ([]*model.Review, error) {
-	return o.reviewManager.GetReviewsOfBook(ctx, bookID)
+func (o *ReviewOperator) GetReviewsOfBook(ctx context.Context, bookID uint, query string) ([]*model.Review, error) {
+	return o.reviewManager.GetReviewsOfBook(ctx, bookID, query)
 }
 
 func (o *ReviewOperator) UpdateReview(ctx context.Context, id string, b *model.Review) (*model.Review, error) {

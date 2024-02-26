@@ -152,7 +152,7 @@ func (r *RestHandler) getReviewsOfBook(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid book id"})
 		return
 	}
-	books, err := r.reviewOperator.GetReviewsOfBook(c, uint(bookID))
+	books, err := r.reviewOperator.GetReviewsOfBook(c, uint(bookID), c.Query(fieldQuery))
 	if err != nil {
 		fmt.Printf("Failed to get reviews of book %d: %v\n", bookID, err)
 		c.JSON(http.StatusNotFound, gin.H{"error": "failed to get books"})

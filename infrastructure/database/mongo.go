@@ -96,8 +96,20 @@ func (m *MongoPersistence) GetReview(ctx context.Context, id string) (*model.Rev
 	return &review, nil
 }
 
-func (m *MongoPersistence) GetReviewsOfBook(ctx context.Context, bookID uint) ([]*model.Review, error) {
-	cursor, err := m.coll.Find(ctx, bson.M{bookIDField: bookID})
+func (m *MongoPersistence) GetReviewsOfBook(ctx context.Context, bookID uint, keyword string) ([]*model.Review, error) {
+	filter := bson.M{bookIDField: bookID}
+	if keyword != "" {
+		filter = bson.M{
+			"$and": []bson.M{
+				{"$or": []bson.M{
+					{"title": bson.M{"$regex": keyword, "$options": "i"}},
+					{"content": bson.M{"$regex": keyword, "$options": "i"}},
+				}},
+				{bookIDField: bookID},
+			},
+		}
+	}
+	cursor, err := m.coll.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
