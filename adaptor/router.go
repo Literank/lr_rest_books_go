@@ -22,7 +22,7 @@ type RestHandler struct {
 
 func MakeRouter(wireHelper *application.WireHelper) (*gin.Engine, error) {
 	rest := &RestHandler{
-		bookOperator:   executor.NewBookOperator(wireHelper.BookManager()),
+		bookOperator:   executor.NewBookOperator(wireHelper.BookManager(), wireHelper.CacheHelper()),
 		reviewOperator: executor.NewReviewOperator(wireHelper.ReviewManager()),
 	}
 	// Create a new Gin router

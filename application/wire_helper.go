@@ -2,6 +2,7 @@ package application
 
 import (
 	"literank.com/rest-books/domain/gateway"
+	"literank.com/rest-books/infrastructure/cache"
 	"literank.com/rest-books/infrastructure/config"
 	"literank.com/rest-books/infrastructure/database"
 )
@@ -10,6 +11,7 @@ import (
 type WireHelper struct {
 	sqlPersistence   *database.MySQLPersistence
 	noSQLPersistence *database.MongoPersistence
+	kvStore          *cache.RedisCache
 }
 
 func NewWireHelper(c *config.Config) (*WireHelper, error) {
@@ -21,7 +23,8 @@ func NewWireHelper(c *config.Config) (*WireHelper, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &WireHelper{sqlPersistence: db, noSQLPersistence: mdb}, nil
+	kv := cache.NewRedisCache(&c.Cache)
+	return &WireHelper{sqlPersistence: db, noSQLPersistence: mdb, kvStore: kv}, nil
 }
 
 func (w *WireHelper) BookManager() gateway.BookManager {
@@ -30,4 +33,8 @@ func (w *WireHelper) BookManager() gateway.BookManager {
 
 func (w *WireHelper) ReviewManager() gateway.ReviewManager {
 	return w.noSQLPersistence
+}
+
+func (w *WireHelper) CacheHelper() cache.Helper {
+	return w.kvStore
 }

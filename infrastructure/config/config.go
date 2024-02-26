@@ -8,8 +8,9 @@ import (
 )
 
 type Config struct {
-	App ApplicationConfig `json:"app" yaml:"app"`
-	DB  DBConfig          `json:"db" yaml:"db"`
+	App   ApplicationConfig `json:"app" yaml:"app"`
+	Cache CacheConfig       `json:"cache" yaml:"cache"`
+	DB    DBConfig          `json:"db" yaml:"db"`
 }
 
 type DBConfig struct {
@@ -21,6 +22,13 @@ type DBConfig struct {
 
 type ApplicationConfig struct {
 	Port int `json:"port" yaml:"port"`
+}
+
+type CacheConfig struct {
+	Address  string `json:"address" yaml:"address"`
+	Password string `json:"password" yaml:"password"`
+	DB       int    `json:"db" yaml:"db"`
+	Timeout  int    `json:"timeout" yaml:"timeout"`
 }
 
 // Parse parses config file and returns a Config.
