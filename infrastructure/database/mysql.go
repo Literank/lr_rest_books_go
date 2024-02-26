@@ -55,9 +55,14 @@ func (s *MySQLPersistence) GetBook(ctx context.Context, id uint) (*model.Book, e
 	return &book, nil
 }
 
-func (s *MySQLPersistence) GetBooks(ctx context.Context, offset int) ([]*model.Book, error) {
+func (s *MySQLPersistence) GetBooks(ctx context.Context, offset int, keyword string) ([]*model.Book, error) {
 	books := make([]*model.Book, 0)
-	if err := s.db.WithContext(ctx).Offset(offset).Limit(s.pageSize).Find(&books).Error; err != nil {
+	tx := s.db.WithContext(ctx)
+	if keyword != "" {
+		term := "%" + keyword + "%"
+		tx = tx.Where("title LIKE ?", term).Or("author LIKE ?", term)
+	}
+	if err := tx.Offset(offset).Limit(s.pageSize).Find(&books).Error; err != nil {
 		return nil, err
 	}
 	return books, nil

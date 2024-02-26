@@ -34,7 +34,13 @@ func (o *BookOperator) GetBook(ctx context.Context, id uint) (*model.Book, error
 	return o.bookManager.GetBook(ctx, id)
 }
 
-func (o *BookOperator) GetBooks(ctx context.Context, offset int) ([]*model.Book, error) {
+func (o *BookOperator) GetBooks(ctx context.Context, offset int, query string) ([]*model.Book, error) {
+	// Search results, don't cache it
+	if query != "" {
+		return o.bookManager.GetBooks(ctx, offset, query)
+	}
+
+	// Normal list of results
 	k := fmt.Sprintf("%s-%d", booksKey, offset)
 	rawValue, err := o.cacheHelper.Load(ctx, k)
 	if err != nil {
@@ -49,7 +55,7 @@ func (o *BookOperator) GetBooks(ctx context.Context, offset int) ([]*model.Book,
 		}
 	} else {
 		// Cache key does not exist
-		books, err = o.bookManager.GetBooks(ctx, offset)
+		books, err = o.bookManager.GetBooks(ctx, offset, "")
 		if err != nil {
 			return nil, err
 		}

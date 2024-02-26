@@ -15,6 +15,7 @@ import (
 const (
 	fieldID     = "id"
 	fieldOffset = "o"
+	fieldQuery  = "q"
 )
 
 // RestHandler handles all restful requests
@@ -63,7 +64,7 @@ func (r *RestHandler) getBooks(c *gin.Context) {
 		}
 		offset = value
 	}
-	books, err := r.bookOperator.GetBooks(c, offset)
+	books, err := r.bookOperator.GetBooks(c, offset, c.Query(fieldQuery))
 	if err != nil {
 		fmt.Printf("Failed to get books: %v\n", err)
 		c.JSON(http.StatusNotFound, gin.H{"error": "failed to get books"})
