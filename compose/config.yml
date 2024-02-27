@@ -1,0 +1,15 @@
+app:
+  port: 8080
+  page_size: 10
+  token_secret: "LiteRank_in_Compose"
+  token_hours: 72
+db:
+  file_name: "test.db"
+  dsn: "test_user:test_pass@tcp(mysql:3306)/lr_book?charset=utf8mb4&parseTime=True&loc=Local"
+  mongo_uri: "mongodb://mongo:27017"
+  mongo_db_name: "lr_book"
+cache:
+  address: redis:6379
+  password: test_pass
+  db: 0
+  timeout: 50
