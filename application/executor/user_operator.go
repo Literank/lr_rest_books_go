@@ -19,11 +19,13 @@ const (
 	errEmptyPassword = "empty password"
 )
 
+// UserOperator wraps all user and permission operations.
 type UserOperator struct {
 	userManager gateway.UserManager
 	permManager gateway.PermissionManager
 }
 
+// NewUserOperator constructs a new UserOperator
 func NewUserOperator(u gateway.UserManager, p gateway.PermissionManager) *UserOperator {
 	return &UserOperator{userManager: u, permManager: p}
 }

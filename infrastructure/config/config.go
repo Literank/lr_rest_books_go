@@ -1,3 +1,6 @@
+/*
+Package config provides config structures and parse funcs.
+*/
 package config
 
 import (
@@ -7,12 +10,14 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// Config is the global configuration.
 type Config struct {
 	App   ApplicationConfig `json:"app" yaml:"app"`
 	Cache CacheConfig       `json:"cache" yaml:"cache"`
 	DB    DBConfig          `json:"db" yaml:"db"`
 }
 
+// DBConfig is the configuration of databases.
 type DBConfig struct {
 	FileName    string `json:"file_name" yaml:"file_name"`
 	DSN         string `json:"dsn" yaml:"dsn"`
@@ -20,6 +25,7 @@ type DBConfig struct {
 	MongoDBName string `json:"mongo_db_name" yaml:"mongo_db_name"`
 }
 
+// ApplicationConfig is the configuration of main app.
 type ApplicationConfig struct {
 	Port        int    `json:"port" yaml:"port"`
 	PageSize    int    `json:"page_size" yaml:"page_size"`
@@ -27,6 +33,7 @@ type ApplicationConfig struct {
 	TokenHours  int    `json:"token_hours" yaml:"token_hours"`
 }
 
+// CacheConfig is the configuration of cache.
 type CacheConfig struct {
 	Address  string `json:"address" yaml:"address"`
 	Password string `json:"password" yaml:"password"`

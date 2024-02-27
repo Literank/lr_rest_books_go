@@ -1,3 +1,6 @@
+/*
+Package gateway contains all domain gateways.
+*/
 package gateway
 
 import (

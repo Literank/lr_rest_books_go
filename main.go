@@ -1,3 +1,6 @@
+/*
+package main provides the main entry point.
+*/
 package main
 
 import (

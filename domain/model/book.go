@@ -1,3 +1,6 @@
+/*
+Package model has all domain models.
+*/
 package model
 
 import "time"

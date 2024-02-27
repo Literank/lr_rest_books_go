@@ -10,14 +10,17 @@ import (
 	"literank.com/rest-books/domain/model"
 )
 
+// ReviewOperator handles review input/output and proxies operations to the review manager.
 type ReviewOperator struct {
 	reviewManager gateway.ReviewManager
 }
 
+// NewReviewOperator constructs a new ReviewOperator
 func NewReviewOperator(b gateway.ReviewManager) *ReviewOperator {
 	return &ReviewOperator{reviewManager: b}
 }
 
+// CreateReview creates a new review
 func (o *ReviewOperator) CreateReview(ctx context.Context, body *dto.ReviewBody) (*model.Review, error) {
 	now := time.Now()
 	b := &model.Review{
@@ -36,14 +39,17 @@ func (o *ReviewOperator) CreateReview(ctx context.Context, body *dto.ReviewBody)
 	return b, nil
 }
 
+// GetReview gets a review by ID
 func (o *ReviewOperator) GetReview(ctx context.Context, id string) (*model.Review, error) {
 	return o.reviewManager.GetReview(ctx, id)
 }
 
+// GetReviewsOfBook gets a list of reviews by a query
 func (o *ReviewOperator) GetReviewsOfBook(ctx context.Context, bookID uint, query string) ([]*model.Review, error) {
 	return o.reviewManager.GetReviewsOfBook(ctx, bookID, query)
 }
 
+// UpdateReview updates a review by its ID and the new content
 func (o *ReviewOperator) UpdateReview(ctx context.Context, id string, b *model.Review) (*model.Review, error) {
 	if b.Title == "" || b.Content == "" {
 		return nil, errors.New("required field cannot be empty")
@@ -55,6 +61,7 @@ func (o *ReviewOperator) UpdateReview(ctx context.Context, id string, b *model.R
 	return b, nil
 }
 
+// DeleteReview deletes a review by ID
 func (o *ReviewOperator) DeleteReview(ctx context.Context, id string) error {
 	return o.reviewManager.DeleteReview(ctx, id)
 }

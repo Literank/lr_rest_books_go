@@ -1,3 +1,6 @@
+/*
+Package adaptor adapts to all kinds of framework or protocols.
+*/
 package adaptor
 
 import (
@@ -33,6 +36,7 @@ func newRestHandler(wireHelper *application.WireHelper) *RestHandler {
 	}
 }
 
+// MakeRouter makes the main router
 func MakeRouter(wireHelper *application.WireHelper) (*gin.Engine, error) {
 	rest := newRestHandler(wireHelper)
 	// Create a new Gin router
@@ -125,7 +129,7 @@ func (r *RestHandler) updateBook(c *gin.Context) {
 	}
 
 	var reqBody model.Book
-	if err := c.ShouldBindJSON(&reqBody); err != nil {
+	if err = c.ShouldBindJSON(&reqBody); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

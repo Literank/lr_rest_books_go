@@ -17,10 +17,12 @@ const (
 	defaultTTL     = time.Hour * 1
 )
 
+// RedisCache implements cache with redis
 type RedisCache struct {
 	c redis.UniversalClient
 }
 
+// NewRedisCache constructs a new RedisCache
 func NewRedisCache(c *config.CacheConfig) *RedisCache {
 	timeout := defaultTimeout
 	if c.Timeout > 0 {

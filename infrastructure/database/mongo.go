@@ -22,11 +22,13 @@ const (
 	bookIDField = "bookid"
 )
 
+// MongoPersistence runs all mongoDB operations
 type MongoPersistence struct {
 	db   *mongo.Database
 	coll *mongo.Collection
 }
 
+// NewMongoPersistence constructs a new MongoPersistence
 func NewMongoPersistence(mongoURI, dbName string) (*MongoPersistence, error) {
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(mongoURI))
 	if err != nil {
@@ -37,6 +39,7 @@ func NewMongoPersistence(mongoURI, dbName string) (*MongoPersistence, error) {
 	return &MongoPersistence{db, coll}, nil
 }
 
+// CreateReview creates a new review
 func (m *MongoPersistence) CreateReview(ctx context.Context, r *model.Review) (string, error) {
 	result, err := m.coll.InsertOne(ctx, r)
 	if err != nil {
@@ -49,6 +52,7 @@ func (m *MongoPersistence) CreateReview(ctx context.Context, r *model.Review) (s
 	return insertedID.Hex(), nil
 }
 
+// UpdateReview updates a review by its ID and the new content
 func (m *MongoPersistence) UpdateReview(ctx context.Context, id string, r *model.Review) error {
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -69,6 +73,7 @@ func (m *MongoPersistence) UpdateReview(ctx context.Context, id string, r *model
 	return nil
 }
 
+// DeleteReview deletes a review by ID
 func (m *MongoPersistence) DeleteReview(ctx context.Context, id string) error {
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -84,6 +89,7 @@ func (m *MongoPersistence) DeleteReview(ctx context.Context, id string) error {
 	return nil
 }
 
+// GetReview gets a review by ID
 func (m *MongoPersistence) GetReview(ctx context.Context, id string) (*model.Review, error) {
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -96,6 +102,7 @@ func (m *MongoPersistence) GetReview(ctx context.Context, id string) (*model.Rev
 	return &review, nil
 }
 
+// GetReviewsOfBook gets a list of reviews by a keyword
 func (m *MongoPersistence) GetReviewsOfBook(ctx context.Context, bookID uint, keyword string) ([]*model.Review, error) {
 	filter := bson.M{bookIDField: bookID}
 	if keyword != "" {

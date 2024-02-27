@@ -1,3 +1,6 @@
+/*
+Package application provides all common structures and functions of the application layer.
+*/
 package application
 
 import (
@@ -16,6 +19,7 @@ type WireHelper struct {
 	tokenKeeper      *token.Keeper
 }
 
+// NewWireHelper constructs a new WireHelper
 func NewWireHelper(c *config.Config) (*WireHelper, error) {
 	db, err := database.NewMySQLPersistence(c.DB.DSN, c.App.PageSize)
 	if err != nil {
@@ -32,22 +36,27 @@ func NewWireHelper(c *config.Config) (*WireHelper, error) {
 		kvStore: kv, tokenKeeper: tk}, nil
 }
 
+// BookManager returns an instance of BookManager
 func (w *WireHelper) BookManager() gateway.BookManager {
 	return w.sqlPersistence
 }
 
+// UserManager returns an instance of UserManager
 func (w *WireHelper) UserManager() gateway.UserManager {
 	return w.sqlPersistence
 }
 
+// PermManager returns an instance of PermManager
 func (w *WireHelper) PermManager() gateway.PermissionManager {
 	return w.tokenKeeper
 }
 
+// ReviewManager returns an instance of ReviewManager
 func (w *WireHelper) ReviewManager() gateway.ReviewManager {
 	return w.noSQLPersistence
 }
 
+// CacheHelper returns an instance of CacheHelper
 func (w *WireHelper) CacheHelper() cache.Helper {
 	return w.kvStore
 }
