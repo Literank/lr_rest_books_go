@@ -22,12 +22,14 @@ const (
 type RestHandler struct {
 	bookOperator   *executor.BookOperator
 	reviewOperator *executor.ReviewOperator
+	userOperator   *executor.UserOperator
 }
 
 func MakeRouter(wireHelper *application.WireHelper) (*gin.Engine, error) {
 	rest := &RestHandler{
 		bookOperator:   executor.NewBookOperator(wireHelper.BookManager(), wireHelper.CacheHelper()),
 		reviewOperator: executor.NewReviewOperator(wireHelper.ReviewManager()),
+		userOperator:   executor.NewUserOperator(wireHelper.UserManager()),
 	}
 	// Create a new Gin router
 	r := gin.Default()
@@ -49,6 +51,10 @@ func MakeRouter(wireHelper *application.WireHelper) (*gin.Engine, error) {
 	r.POST("/reviews", rest.createReview)
 	r.PUT("/reviews/:id", rest.updateReview)
 	r.DELETE("/reviews/:id", rest.deleteReview)
+
+	userGroup := r.Group("/users")
+	userGroup.POST("", rest.userSignUp)
+	userGroup.POST("/sign-in", rest.userSignIn)
 	return r, nil
 }
 
@@ -181,13 +187,13 @@ func (r *RestHandler) createReview(c *gin.Context) {
 		return
 	}
 
-	book, err := r.reviewOperator.CreateReview(c, &reviewBody)
+	review, err := r.reviewOperator.CreateReview(c, &reviewBody)
 	if err != nil {
 		fmt.Printf("Failed to create: %v\n", err)
 		c.JSON(http.StatusNotFound, gin.H{"error": "failed to create the review"})
 		return
 	}
-	c.JSON(http.StatusCreated, book)
+	c.JSON(http.StatusCreated, review)
 }
 
 // Update an existing review
@@ -219,4 +225,34 @@ func (r *RestHandler) deleteReview(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusNoContent, nil)
+}
+
+func (r *RestHandler) userSignUp(c *gin.Context) {
+	var ucBody dto.UserCredential
+	if err := c.ShouldBindJSON(&ucBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	u, err := r.userOperator.CreateUser(c, &ucBody)
+	if err != nil {
+		fmt.Printf("Failed to create user: %v\n", err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "failed to sign up"})
+		return
+	}
+	c.JSON(http.StatusCreated, u)
+}
+
+func (r *RestHandler) userSignIn(c *gin.Context) {
+	var m dto.UserCredential
+	if err := c.ShouldBindJSON(&m); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	u, err := r.userOperator.SignIn(c, m.Email, m.Password)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, u)
 }

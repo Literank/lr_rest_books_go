@@ -31,6 +31,10 @@ func (w *WireHelper) BookManager() gateway.BookManager {
 	return w.sqlPersistence
 }
 
+func (w *WireHelper) UserManager() gateway.UserManager {
+	return w.sqlPersistence
+}
+
 func (w *WireHelper) ReviewManager() gateway.ReviewManager {
 	return w.noSQLPersistence
 }

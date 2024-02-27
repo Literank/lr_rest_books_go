@@ -23,7 +23,7 @@ func NewMySQLPersistence(dsn string, pageSize int) (*MySQLPersistence, error) {
 		return nil, err
 	}
 	// Auto Migrate the data structs
-	db.AutoMigrate(&model.Book{})
+	db.AutoMigrate(&model.Book{}, &model.User{})
 
 	return &MySQLPersistence{db, pageSize}, nil
 }
@@ -66,4 +66,19 @@ func (s *MySQLPersistence) GetBooks(ctx context.Context, offset int, keyword str
 		return nil, err
 	}
 	return books, nil
+}
+
+func (s *MySQLPersistence) CreateUser(ctx context.Context, u *model.User) (uint, error) {
+	if err := s.db.WithContext(ctx).Create(u).Error; err != nil {
+		return 0, err
+	}
+	return u.ID, nil
+}
+
+func (s *MySQLPersistence) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
+	var u model.User
+	if err := s.db.WithContext(ctx).Where("email = ?", email).First(&u).Error; err != nil {
+		return nil, err
+	}
+	return &u, nil
 }
