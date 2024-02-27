@@ -14,3 +14,7 @@ build:
 build-linux:
 	@echo "Building $(BINARY_NAME) for Linux..."
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o $(BINARY_NAME)
+
+image:
+	@echo "Building Docker image..."
+	docker build . -t $(BINARY_NAME):latest
