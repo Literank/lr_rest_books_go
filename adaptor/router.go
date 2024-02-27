@@ -25,12 +25,16 @@ type RestHandler struct {
 	userOperator   *executor.UserOperator
 }
 
-func MakeRouter(wireHelper *application.WireHelper) (*gin.Engine, error) {
-	rest := &RestHandler{
+func newRestHandler(wireHelper *application.WireHelper) *RestHandler {
+	return &RestHandler{
 		bookOperator:   executor.NewBookOperator(wireHelper.BookManager(), wireHelper.CacheHelper()),
 		reviewOperator: executor.NewReviewOperator(wireHelper.ReviewManager()),
-		userOperator:   executor.NewUserOperator(wireHelper.UserManager()),
+		userOperator:   executor.NewUserOperator(wireHelper.UserManager(), wireHelper.PermManager()),
 	}
+}
+
+func MakeRouter(wireHelper *application.WireHelper) (*gin.Engine, error) {
+	rest := newRestHandler(wireHelper)
 	// Create a new Gin router
 	r := gin.Default()
 
@@ -43,9 +47,9 @@ func MakeRouter(wireHelper *application.WireHelper) (*gin.Engine, error) {
 	})
 	r.GET("/books", rest.getBooks)
 	r.GET("/books/:id", rest.getBook)
-	r.POST("/books", rest.createBook)
-	r.PUT("/books/:id", rest.updateBook)
-	r.DELETE("/books/:id", rest.deleteBook)
+	r.POST("/books", rest.PermCheck(model.PermAuthor), rest.createBook)
+	r.PUT("/books/:id", rest.PermCheck(model.PermAuthor), rest.updateBook)
+	r.DELETE("/books/:id", rest.PermCheck(model.PermAuthor), rest.deleteBook)
 	r.GET("/books/:id/reviews", rest.getReviewsOfBook)
 	r.GET("/reviews/:id", rest.getReview)
 	r.POST("/reviews", rest.createReview)

@@ -2,6 +2,17 @@ package model
 
 import "time"
 
+// UserPermission represents different levels of user permissions.
+type UserPermission uint8
+
+// UserPermission levels
+const (
+	PermNone UserPermission = iota
+	PermUser
+	PermAuthor
+	PermAdmin
+)
+
 // User represents an app user
 type User struct {
 	ID        uint      `json:"id,omitempty"`

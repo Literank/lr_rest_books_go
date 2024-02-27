@@ -21,8 +21,10 @@ type DBConfig struct {
 }
 
 type ApplicationConfig struct {
-	Port     int `json:"port" yaml:"port"`
-	PageSize int `json:"page_size" yaml:"page_size"`
+	Port        int    `json:"port" yaml:"port"`
+	PageSize    int    `json:"page_size" yaml:"page_size"`
+	TokenSecret string `json:"token_secret" yaml:"token_secret"`
+	TokenHours  int    `json:"token_hours" yaml:"token_hours"`
 }
 
 type CacheConfig struct {

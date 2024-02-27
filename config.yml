@@ -1,6 +1,8 @@
 app:
   port: 8080
   page_size: 5
+  token_secret: "I_Love_LiteRank"
+  token_hours: 72
 db:
   file_name: "test.db"
   dsn: "test_user:test_pass@tcp(127.0.0.1:3306)/lr_book?charset=utf8mb4&parseTime=True&loc=Local"

@@ -21,10 +21,11 @@ const (
 
 type UserOperator struct {
 	userManager gateway.UserManager
+	permManager gateway.PermissionManager
 }
 
-func NewUserOperator(u gateway.UserManager) *UserOperator {
-	return &UserOperator{userManager: u}
+func NewUserOperator(u gateway.UserManager, p gateway.PermissionManager) *UserOperator {
+	return &UserOperator{userManager: u, permManager: p}
 }
 
 // CreateUser creates a new user
@@ -52,7 +53,7 @@ func (u *UserOperator) CreateUser(ctx context.Context, uc *dto.UserCredential) (
 }
 
 // SignIn signs an user in
-func (u *UserOperator) SignIn(ctx context.Context, email, password string) (*dto.User, error) {
+func (u *UserOperator) SignIn(ctx context.Context, email, password string) (*dto.UserToken, error) {
 	if email == "" {
 		return nil, errors.New(errEmptyEmail)
 	}
@@ -67,11 +68,31 @@ func (u *UserOperator) SignIn(ctx context.Context, email, password string) (*dto
 	if user.Password != passwordHash {
 		return nil, errors.New("wrong password")
 	}
+	token, err := u.permManager.GenerateToken(user.ID, user.Email, calcPerm(user.IsAdmin))
+	if err != nil {
+		return nil, err
+	}
 
-	return &dto.User{
-		ID:    user.ID,
-		Email: user.Email,
+	return &dto.UserToken{
+		User: dto.User{
+			ID:    user.ID,
+			Email: user.Email,
+		},
+		Token: token,
 	}, nil
+}
+
+// HasPermission checks if user has the given permission.
+func (u *UserOperator) HasPermission(tokenResult string, perm model.UserPermission) (bool, error) {
+	return u.permManager.HasPermission(tokenResult, perm)
+}
+
+func calcPerm(isAdmin bool) model.UserPermission {
+	perm := model.PermUser
+	if isAdmin {
+		perm = model.PermAdmin
+	}
+	return perm
 }
 
 func randomString(length int) string {
