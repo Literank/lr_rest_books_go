@@ -1,5 +1,5 @@
-# alpine with golang
-FROM golang:1.22.0-alpine3.19
+# alpine linux
+FROM alpine:3.19
 
 # Prepare server stuff
 ENV APP_BIN=lrbooks
