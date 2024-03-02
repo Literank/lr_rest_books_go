@@ -12,7 +12,7 @@ type User struct {
 	Email string `json:"email,omitempty"`
 }
 
-// UserToken is an combination of User struct and token field
+// UserToken is a combination of the User struct and the token field
 type UserToken struct {
 	User  User   `json:"user,omitempty"`
 	Token string `json:"token,omitempty"`
