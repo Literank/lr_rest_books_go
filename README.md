@@ -22,6 +22,16 @@ make build
 
 ## Run in Docker Compose
 
+Create `compose/.env` file:
+
+```bash
+REDIS_PASSWORD=your_pass
+MYSQL_PASSWORD=your_pass
+MYSQL_ROOT_PASSWORD=your_root_pass
+```
+
+Run it:
+
 ```bash
 cd compose
 docker compose up
